@@ -45,8 +45,12 @@ public class MainActivity extends AppCompatActivity {
         etcButton = findViewById(R.id.etc_button);
         settingsButton = findViewById(R.id.settings_button);  // 톱니바퀴 버튼 참조
 
-        // 초기화 메서드 호출
+
         updateSavingTitle();
+
+        // 리셋 이미지 뷰 클릭 리스너 설정
+        findViewById(R.id.reset_image).setOnClickListener(view -> resetFields());
+
 
         // 버튼 리스너 설정
         findViewById(R.id.update_button).setOnClickListener(view -> updateGoal());
@@ -182,4 +186,21 @@ public class MainActivity extends AppCompatActivity {
                 .create()
                 .show();
     }
+
+    // 리셋 버튼 클릭 시 리셋 처리
+    private void resetFields() {
+        savingTitle.setText("나의 " + savingCount + "번째 절약");
+        dDayText.setText("");
+        goalAmountText.setText("목표 금액: 0 원");
+        todayExpenseText.setText("오늘 소비 금액: 0 원");
+        expenseDetails.clear();
+        expenseDetailsText.setText("");
+
+        inputGoalAmount.setText("");
+        inputGoalDate.setText("");
+
+        // 다른 리셋 로직 추가 가능
+        Toast.makeText(this, "리셋되었습니다.", Toast.LENGTH_SHORT).show();
+    }
 }
+
