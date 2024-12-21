@@ -1,7 +1,11 @@
 package com.example.app;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
+import android.widget.ImageView;
+import android.content.Intent;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -9,11 +13,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import android.widget.RelativeLayout;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import android.graphics.Color;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,10 +50,15 @@ public class MainActivity extends AppCompatActivity {
         foodButton = findViewById(R.id.food_button);
         livingButton = findViewById(R.id.living_button);
         etcButton = findViewById(R.id.etc_button);
-        settingsButton = findViewById(R.id.settings_button);  // 톱니바퀴 버튼 참조
+        settingsButton = findViewById(R.id.settings_button);
 
+        // 숫자 입력 키보드 설정
+        inputGoalAmount.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        inputGoalDate.setInputType(android.text.InputType.TYPE_CLASS_DATETIME);
 
         updateSavingTitle();
+
+        // 절약 목표 클릭 시 텍스트 수정 붛가능
 
         // 리셋 이미지 뷰 클릭 리스너 설정
         findViewById(R.id.reset_image).setOnClickListener(view -> resetFields());
@@ -58,17 +70,28 @@ public class MainActivity extends AppCompatActivity {
         livingButton.setOnClickListener(view -> recordExpense("생활비"));
         etcButton.setOnClickListener(view -> recordExpense("기타"));
         settingsButton.setOnClickListener(view -> showSettingsDialog());
+
+        /* log_image눌렀을때 화면전환시도해봤으나 계속 오류남..
+        ImageView logImageView = findViewById(R.id.log_image); // log 이미지의 ID
+        logImageView.setOnClickListener(view -> {
+            // SavingActivity로 이동
+            Intent intent = new Intent(MainActivity.this, savingActivity.class);
+            startActivity(intent);
+        }); */
+
     }
 
+
+
     private void updateSavingTitle() {
-        savingTitle.setText("나의 " + savingCount + "번째 절약");
+        savingTitle.setText("<< 나의 " + savingCount + "번째 절약 >>");
     }
 
     private void updateGoal() {
         String goalAmountInput = inputGoalAmount.getText().toString().trim();
-        String goalDate = inputGoalDate.getText().toString().trim();
+        String goalDateInput = inputGoalDate.getText().toString().trim();
 
-        if (goalAmountInput.isEmpty() || goalDate.isEmpty()) {
+        if (goalAmountInput.isEmpty() || goalDateInput.isEmpty()) {
             Toast.makeText(this, "목표 금액과 날짜를 입력하세요.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -76,31 +99,34 @@ public class MainActivity extends AppCompatActivity {
         goalAmount = goalAmountInput;
 
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Calendar goalCalendar = Calendar.getInstance();
-            goalCalendar.setTime(sdf.parse(goalDate));
-            long remainingDays = (goalCalendar.getTimeInMillis() - Calendar.getInstance().getTimeInMillis()) / (1000 * 60 * 60 * 24);
+            // 입력된 날짜를 yyyyMMdd 형식으로 파싱
+            SimpleDateFormat inputDateFormat = new SimpleDateFormat("yyyyMMdd");
+            Date goalDate = inputDateFormat.parse(goalDateInput);
+
+            // 목표 날짜와 현재 날짜의 차이 계산
+            long remainingDays = (goalDate.getTime() - System.currentTimeMillis()) / (1000 * 60 * 60 * 24);
 
             dDayText.setText("D-" + remainingDays);
             goalAmountText.setText("목표 금액: " + goalAmount + " 원");
 
             Toast.makeText(this, "목표가 설정되었습니다!", Toast.LENGTH_LONG).show();
-        } catch (Exception e) {
-            Toast.makeText(this, "잘못된 날짜 형식입니다.", Toast.LENGTH_SHORT).show();
+        } catch (ParseException e) {
+            Toast.makeText(this, "잘못된 날짜 형식입니다. yyyyMMdd 형식으로 입력하세요.", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void recordExpense(String category) {
-        // 다이얼로그 생성
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle(category + " 항목 입력");
 
-        // 항목과 금액을 입력받을 수 있는 다이얼로그 레이아웃 설정
         final View expenseInputView = getLayoutInflater().inflate(R.layout.dialog_expense_input, null);
         builder.setView(expenseInputView);
 
         final EditText categoryInput = expenseInputView.findViewById(R.id.expense_category);
         final EditText amountInput = expenseInputView.findViewById(R.id.expense_amount);
+
+        // 숫자 입력 키보드 설정
+        amountInput.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
 
         builder.setPositiveButton("확인", (dialogInterface, i) -> {
             String enteredCategory = categoryInput.getText().toString();
@@ -115,7 +141,6 @@ public class MainActivity extends AppCompatActivity {
                 int amount = Integer.parseInt(enteredAmount);
                 totalExpense += amount;
 
-                // 해당 카테고리에 소비 내역 추가
                 if (!expenseDetails.containsKey(category)) {
                     expenseDetails.put(category, new StringBuilder());
                 }
@@ -124,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
                         .append(enteredAmount)
                         .append(" 원\n");
 
-                // 소비 금액 표시 업데이트
                 todayExpenseText.setText("오늘 소비 금액: " + totalExpense + " 원");
                 updateExpenseDetails();
 
@@ -141,16 +165,15 @@ public class MainActivity extends AppCompatActivity {
     private void updateExpenseDetails() {
         StringBuilder expenseSummary = new StringBuilder();
 
-        // 각 카테고리별로 아이콘 설정
         for (Map.Entry<String, StringBuilder> entry : expenseDetails.entrySet()) {
             String icon = "";
 
             if (entry.getKey().equals("식비")) {
-                icon = "■ ";  // 네모 아이콘
+                icon = "■ ";
             } else if (entry.getKey().equals("생활비")) {
-                icon = "● ";  // 동그라미 아이콘
-            } else if (entry.getKey().equals("기타")) {
-                icon = "★ ";  // 별 아이콘
+                icon = "● ";
+            } else if(entry.getKey().equals("기타")) {
+                icon = "★ ";
             }
 
             expenseSummary.append(icon)
@@ -163,7 +186,8 @@ public class MainActivity extends AppCompatActivity {
         expenseDetailsText.setText(expenseSummary.toString());
     }
 
-    // 목표 수정 다이얼로그 생성 메서드
+
+
     private void showSettingsDialog() {
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_settings, null);
 
