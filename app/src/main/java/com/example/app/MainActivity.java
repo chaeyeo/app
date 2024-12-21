@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import android.graphics.Color;
 
+import com.example.app.savinglist.SavingListActivity;
+
 public class MainActivity extends AppCompatActivity {
 
     private TextView savingTitle, savingPurpose, dDayText, goalAmountText, todayExpenseText, expenseDetailsText;
@@ -70,13 +72,11 @@ public class MainActivity extends AppCompatActivity {
         etcButton.setOnClickListener(view -> recordExpense("기타"));
         settingsButton.setOnClickListener(view -> showSettingsDialog());
 
-        /* log_image눌렀을때 화면전환시도해봤으나 계속 오류남..
-        ImageView logImageView = findViewById(R.id.log_image); // log 이미지의 ID
+        ImageView logImageView = findViewById(R.id.log_image);
         logImageView.setOnClickListener(view -> {
-            // SavingActivity로 이동
-            Intent intent = new Intent(MainActivity.this, savingActivity.class);
+            Intent intent = new Intent(MainActivity.this, SavingListActivity.class);
             startActivity(intent);
-        }); */
+        });
 
     }
 

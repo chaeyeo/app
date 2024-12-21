@@ -1,13 +1,16 @@
 package com.example.app.savinglist;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.app.MainActivity;
 import com.example.app.R;
 import com.example.app.SavingsDatabaseHelper;
 
@@ -21,6 +24,7 @@ public class SavingListActivity extends AppCompatActivity {
     private List<SavingGoal> savingGoalList;
     private SavingsDatabaseHelper dbHelper;
     private TextView totalSavingsCountTextView;
+    private ImageView logImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +43,13 @@ public class SavingListActivity extends AppCompatActivity {
 
         adapter = new SavingGoalAdapter(this, savingGoalList);
         recyclerView.setAdapter(adapter);
+
+        logImageView = findViewById(R.id.now_image);
+        logImageView.setOnClickListener(view -> {
+            Intent intent = new Intent(SavingListActivity.this, MainActivity.class);
+            startActivity(intent);
+        });
+
     }
 
     private List<SavingGoal> fetchSavingGoalsFromDatabase() {
