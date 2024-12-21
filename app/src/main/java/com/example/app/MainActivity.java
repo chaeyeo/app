@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.Map;
 import android.graphics.Color;
 
+import com.example.app.savinglist.SavingListActivity;
+
 public class MainActivity extends AppCompatActivity {
 
     private TextView savingTitle, savingPurpose, dDayText, goalAmountText, todayExpenseText, expenseDetailsText;
@@ -60,9 +62,7 @@ public class MainActivity extends AppCompatActivity {
         updateSavingTitle();
 
         // 절약 목표 클릭 시 텍스트 수정 붛가능
-
-        // 리셋 이미지 뷰 클릭 리스너 설정
-        findViewById(R.id.end_image).setOnClickListener(view -> resetFields());
+        findViewById(R.id.end_image).setOnClickListener(view -> showConfirmationDialog());
 
 
         // 버튼 리스너 설정
@@ -72,13 +72,11 @@ public class MainActivity extends AppCompatActivity {
         etcButton.setOnClickListener(view -> recordExpense("기타"));
         settingsButton.setOnClickListener(view -> showSettingsDialog());
 
-        /* log_image눌렀을때 화면전환시도해봤으나 계속 오류남..
-        ImageView logImageView = findViewById(R.id.log_image); // log 이미지의 ID
+        ImageView logImageView = findViewById(R.id.log_image);
         logImageView.setOnClickListener(view -> {
-            // SavingActivity로 이동
-            Intent intent = new Intent(MainActivity.this, savingActivity.class);
+            Intent intent = new Intent(MainActivity.this, SavingListActivity.class);
             startActivity(intent);
-        }); */
+        });
 
     }
 
@@ -111,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
             goalAmountText.setText("목표 금액: " + goalAmount + " 원");
 
             Toast.makeText(this, "목표가 설정되었습니다!", Toast.LENGTH_LONG).show();
+
         } catch (ParseException e) {
             Toast.makeText(this, "잘못된 날짜 형식입니다. yyyyMMdd 형식으로 입력하세요.", Toast.LENGTH_SHORT).show();
         }
@@ -205,21 +204,33 @@ public class MainActivity extends AppCompatActivity {
                     savingPurpose.setText(titleEditText.getText().toString());
                     goalAmount = goalAmountEditText.getText().toString();
                     goalAmountText.setText("목표 금액: " + goalAmount + " 원");
+                    inputGoalAmount.setText(goalAmount);
                     Toast.makeText(this, "목표가 수정되었습니다!", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("취소", null)
                 .create()
                 .show();
     }
+    private void showConfirmationDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("절약 종료")
+                .setMessage("절약을 종료하시겠습니까?")
+                .setPositiveButton("네", (dialog, which) -> resetFields()) // "네"를 눌렀을 때 리셋 실행
+                .setNegativeButton("아니오", null) // "아니오"를 누르면 아무 작업도 하지 않음
+                .create()
+                .show();
+    }
 
     // 리셋 버튼 클릭 시 리셋 처리
     private void resetFields() {
-        savingTitle.setText("나의 " + savingCount + "번째 절약");
-        dDayText.setText("");
-        goalAmountText.setText("목표 금액: 0 원");
-        todayExpenseText.setText("오늘 소비 금액: 0 원");
+        savingCount++;
+        savingTitle.setText("<<나의 " + savingCount + "번째 절약>>");
+        savingPurpose.setText("<<절약 목표>>");
+        dDayText.setText("D-Day");
+        goalAmountText.setText("목표 금액");
+        todayExpenseText.setText("오늘의 소비 금액");
         expenseDetails.clear();
-        expenseDetailsText.setText("");
+        expenseDetailsText.setText("소비 내역");
 
         inputGoalAmount.setText("");
         inputGoalDate.setText("");
