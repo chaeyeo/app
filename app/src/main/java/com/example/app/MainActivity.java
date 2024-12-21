@@ -24,7 +24,7 @@ import android.graphics.Color;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView savingTitle, dDayText, goalAmountText, todayExpenseText, expenseDetailsText;
+    private TextView savingTitle, savingPurpose, dDayText, goalAmountText, todayExpenseText, expenseDetailsText;
     private EditText inputGoalAmount, inputGoalDate;
     private Button foodButton, livingButton, etcButton, settingsButton;
     private int savingCount = 1;
@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
         // UI 요소 초기화
         savingTitle = findViewById(R.id.saving_title);
+        savingPurpose = findViewById(R.id.saving_purpose);
         dDayText = findViewById(R.id.d_day_text);
         goalAmountText = findViewById(R.id.goal_amount_text);
         todayExpenseText = findViewById(R.id.today_expense_text);
@@ -61,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
         // 절약 목표 클릭 시 텍스트 수정 붛가능
 
         // 리셋 이미지 뷰 클릭 리스너 설정
-        findViewById(R.id.reset_image).setOnClickListener(view -> resetFields());
+        findViewById(R.id.end_image).setOnClickListener(view -> resetFields());
 
 
         // 버튼 리스너 설정
@@ -194,14 +195,14 @@ public class MainActivity extends AppCompatActivity {
         final EditText titleEditText = dialogView.findViewById(R.id.edit_saving_title);
         final EditText goalAmountEditText = dialogView.findViewById(R.id.edit_goal_amount);
 
-        titleEditText.setText(savingTitle.getText().toString());
+        titleEditText.setText(savingPurpose.getText().toString());
         goalAmountEditText.setText(goalAmount);
 
         new AlertDialog.Builder(this)
                 .setTitle("목표 수정")
                 .setView(dialogView)
                 .setPositiveButton("확인", (dialog, which) -> {
-                    savingTitle.setText(titleEditText.getText().toString());
+                    savingPurpose.setText(titleEditText.getText().toString());
                     goalAmount = goalAmountEditText.getText().toString();
                     goalAmountText.setText("목표 금액: " + goalAmount + " 원");
                     Toast.makeText(this, "목표가 수정되었습니다!", Toast.LENGTH_SHORT).show();

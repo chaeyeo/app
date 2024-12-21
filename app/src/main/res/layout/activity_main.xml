@@ -208,24 +208,23 @@
             android:layout_width="48dp"
             android:layout_height="39dp"
             android:src="@drawable/log"
-            android:contentDescription="첫 번째 이미지"
             android:layout_marginEnd="60dp" />
 
         <!-- 두 번째 이미지 (리셋 버튼) -->
         <ImageView
-            android:id="@+id/reset_image"
+            android:id="@+id/now_image"
             android:layout_width="48dp"
             android:layout_height="39dp"
             android:src="@drawable/now"
-            android:contentDescription="리셋 버튼"
             android:layout_marginEnd="60dp" />
 
         <!-- 세 번째 이미지 -->
         <ImageView
+            android:id="@+id/end_image"
             android:layout_width="48dp"
             android:layout_height="39dp"
             android:src="@drawable/end"
-            android:contentDescription="세 번째 이미지" />
+            android:contentDescription="리셋 버튼" />
     </LinearLayout>
 
     <!-- 설정 버튼 -->
