@@ -140,4 +140,13 @@ public class SavingsDatabaseHelper extends SQLiteOpenHelper {
         }
         return count;
     }
+
+    public void updateTodayTotalDirect(int savingId, int totalExpense) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_TODAY_TOTAL, totalExpense);
+        db.update(TABLE_SAVINGS, values, COLUMN_SAVING_ID + "=?", new String[]{String.valueOf(savingId)});
+        db.close();
+    }
+
 }

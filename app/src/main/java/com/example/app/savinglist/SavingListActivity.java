@@ -31,25 +31,34 @@ public class SavingListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_saving_list);
 
+        // UI 초기화
         recyclerView = findViewById(R.id.recyclerView_savings);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         totalSavingsCountTextView = findViewById(R.id.total_savings_count);
 
+        // Adapter 초기화
         dbHelper = new SavingsDatabaseHelper(this);
+        adapter = new SavingGoalAdapter(this, savingGoalList, dbHelper);
+        recyclerView.setAdapter(adapter);
+
+
+        // 절약 목표 가져오기
         savingGoalList = fetchSavingGoalsFromDatabase();
 
+        // 총 절약 기록 수 표시
         int totalGoalsCount = dbHelper.getSavingsGoalsCount();
         totalSavingsCountTextView.setText("총 절약 기록 수: " + totalGoalsCount);
 
-        adapter = new SavingGoalAdapter(this, savingGoalList);
+        // RecyclerView Adapter 설정
+        adapter = new SavingGoalAdapter(this, savingGoalList, dbHelper);
         recyclerView.setAdapter(adapter);
 
+        // 상단 로고 클릭 시 메인 화면으로 이동
         logImageView = findViewById(R.id.now_image);
         logImageView.setOnClickListener(view -> {
             Intent intent = new Intent(SavingListActivity.this, MainActivity.class);
             startActivity(intent);
         });
-
     }
 
     private List<SavingGoal> fetchSavingGoalsFromDatabase() {
@@ -61,7 +70,7 @@ public class SavingListActivity extends AppCompatActivity {
                 int id = cursor.getInt(cursor.getColumnIndex("saving_id"));
                 String goalName = cursor.getString(cursor.getColumnIndex("goal_name"));
 
-                goals.add(0, new SavingGoal(id, goalName));
+                goals.add(new SavingGoal(id, goalName));
             }
             cursor.close();
         }
