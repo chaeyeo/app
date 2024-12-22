@@ -62,7 +62,10 @@ public class MainActivity extends AppCompatActivity {
         updateSavingTitle();
 
         // 절약 목표 클릭 시 텍스트 수정 붛가능
-        findViewById(R.id.end_image).setOnClickListener(view -> showConfirmationDialog());
+        findViewById(R.id.end_image).setOnClickListener(view -> {
+            saveDataToDatabase();
+            showConfirmationDialog(); // 기존 리셋 다이얼로그 호출
+        });
 
 
         // 버튼 리스너 설정
@@ -237,6 +240,36 @@ public class MainActivity extends AppCompatActivity {
 
         // 다른 리셋 로직 추가 가능
         Toast.makeText(this, "리셋되었습니다.", Toast.LENGTH_SHORT).show();
+    }
+
+    // 데이터를 데이터베이스에 저장하는 메서드
+    private void saveDataToDatabase() {
+        SavingsDatabaseHelper dbHelper = new SavingsDatabaseHelper(this);
+
+        // 절약 목표 데이터 저장
+        String goalName = savingPurpose.getText().toString();
+        String goalDate = inputGoalDate.getText().toString();
+        int goalAmountInt = goalAmount.isEmpty() ? 0 : Integer.parseInt(goalAmount);
+
+        long savingId = dbHelper.addSavingsGoal(goalName, goalDate, goalAmountInt);
+
+        // 소비 내역 저장
+        for (Map.Entry<String, StringBuilder> entry : expenseDetails.entrySet()) {
+            String category = entry.getKey();
+            String[] expenses = entry.getValue().toString().split("\n");
+
+            for (String expense : expenses) {
+                if (expense.isEmpty()) continue;
+                String[] parts = expense.split(": ");
+                String subCategory = parts[0];
+                int price = Integer.parseInt(parts[1].replace(" 원", ""));
+
+                String currentDate = new SimpleDateFormat("yyyyMMdd").format(new Date());
+                dbHelper.addExpense((int) savingId, category + " - " + subCategory, price, currentDate);
+            }
+        }
+
+        Toast.makeText(this, "데이터가 저장되었습니다!", Toast.LENGTH_SHORT).show();
     }
 }
 
